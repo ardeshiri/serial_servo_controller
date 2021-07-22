@@ -13,6 +13,7 @@ bool started = false;
 int max_servoes = 15;
 int enable = 3;
 
+
 void reset_pos()
 {
   int deg1 = 90;
@@ -39,7 +40,7 @@ void reset_pos()
 
 void setup() {
   pinMode(enable, OUTPUT); // Enable/disable pin
-  Serial.begin(9600);
+  Serial.begin(57600);
   while (!Serial);
   pwm.begin();
   digitalWrite(enable, 0); // Enable the device
@@ -86,29 +87,33 @@ void loop() {
 
   if (Serial.available() > 0) {
     String str = Serial.readStringUntil('@');
-    if (str.equals("stop"))
+    if (str.equals("query"))
+    {
+      Serial.println("servo_controller");
+    }
+    else if (str.equals("off"))
     {
       digitalWrite(enable, 1);
-      Serial.println("servo_controller stopped");
+      Serial.println("off");
       started = false;
-      delay(10);
+      Serial.flush();
     }
-    if (str.equals("start"))
+    else if (str.equals("on"))
     {
       digitalWrite(enable, 0);
-      Serial.println("servo_controller started");
+      Serial.println("on");
       started = true;
-      delay(10);
+      Serial.flush();
     }
-    if (str.equals("reset"))
+    else if (str.equals("reset"))
     {
       digitalWrite(enable, 0);
       reset_pos();
-      Serial.println("servo_controller reseted");
+      Serial.println("reset");
       started = true;
-      delay(10);
+      Serial.flush();
     }
-    if (started)
+    else if (started && str.startsWith("#"))
     {
       str_to_pos(str);
     }
